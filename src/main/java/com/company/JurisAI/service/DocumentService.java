@@ -2,7 +2,6 @@ package com.company.JurisAI.service;
 
 
 import com.company.JurisAI.dtos.DocumentInfoDto;
-import com.company.JurisAI.dtos.DocumentUploadRequestDto;
 import com.company.JurisAI.dtos.DocumentUploadResponseDto;
 import com.company.JurisAI.entities.Document;
 import com.company.JurisAI.entities.LegalCase;
@@ -26,7 +25,8 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final LegalCaseRepository legalCaseRepository;
 
-    public DocumentUploadResponseDto saveFile(MultipartFile file, DocumentUploadRequestDto requestDto) throws IOException {
+    public DocumentUploadResponseDto saveFile(MultipartFile file, Long caseId) throws IOException {
+
         if (file.isEmpty()) {
             throw new IOException("File is empty");
         }
@@ -47,11 +47,12 @@ public class DocumentService {
         document.setFileSize(file.getSize());
 
         // 🔗 Link to LegalCase if caseId is present
-        if (requestDto.getCaseId() != null) {
-            LegalCase legalCase = legalCaseRepository.findById(requestDto.getCaseId())
+        if (caseId != null) {
+            LegalCase legalCase = legalCaseRepository.findById(caseId)
                     .orElseThrow(() -> new RuntimeException("Case not found"));
             document.setLegalCase(legalCase);
         }
+
 
         documentRepository.save(document);
 

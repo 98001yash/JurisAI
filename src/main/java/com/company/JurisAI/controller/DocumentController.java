@@ -1,21 +1,16 @@
 package com.company.JurisAI.controller;
 
-
 import com.company.JurisAI.dtos.DocumentInfoDto;
 import com.company.JurisAI.dtos.DocumentUploadResponseDto;
-import com.company.JurisAI.entities.Document;
-import com.company.JurisAI.repository.DocumentRepository;
 import com.company.JurisAI.service.DocumentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,44 +20,39 @@ import java.util.List;
 public class DocumentController {
 
     private final DocumentService documentService;
-    private final DocumentRepository documentRepository;
 
     @PostMapping("/upload")
-    public ResponseEntity<DocumentUploadResponseDto> uploadFile(@RequestParam("file")MultipartFile file){
-        try{
-            DocumentUploadResponseDto response = documentService.saveFile(file);
-            return ResponseEntity.ok(response);
-        }catch(IOException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<DocumentUploadResponseDto> uploadDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "caseId", required = false) Long caseId
+    ) throws IOException {
+        DocumentUploadResponseDto response = documentService.saveFile(file, caseId);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<DocumentInfoDto>> getAllDocuments() {
         return ResponseEntity.ok(documentService.getAllDocuments());
     }
 
-    @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long id) {
-        try {
-            File file = documentService.getDocumentFile(id);
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+    @GetMapping("/{id}/download")
+    public ResponseEntity<Resource> downloadDocument(@PathVariable Long id) throws IOException {
+        File file = documentService.getDocumentFile(id);
+        FileSystemResource resource = new FileSystemResource(file);
 
-            return ResponseEntity.ok()
-                    .header("Content-Disposition", "attachment;filename=" + file.getName())
-                    .contentLength(file.length())
-                    .body(resource);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
 
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
-    @DeleteMapping("/delete/{id}")
-  public ResponseEntity<String> deleteDocument(@PathVariable Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDocument(@PathVariable Long id) {
         documentService.deleteDocument(id);
-        return ResponseEntity.ok("Document deleted successfully");
-  }
-
-
+        return ResponseEntity.ok("Document deleted successfully.");
+    }
 }
