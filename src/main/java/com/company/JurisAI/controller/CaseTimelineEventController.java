@@ -1,6 +1,7 @@
 package com.company.JurisAI.controller;
 
 
+import com.company.JurisAI.advices.ApiResponse;
 import com.company.JurisAI.dtos.CaseTimelineEventRequestDto;
 import com.company.JurisAI.dtos.CaseTimelineEventResponseDto;
 import com.company.JurisAI.service.CaseTimelineEventService;
@@ -35,4 +36,15 @@ public class CaseTimelineEventController {
         caseTimelineEventService.deleteEvent(eventId);
         return ResponseEntity.ok("event deleted successfully");
     }
+
+    @PutMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<CaseTimelineEventResponseDto>> updateEvent(
+            @PathVariable Long eventId,
+            @RequestBody CaseTimelineEventRequestDto requestDto) {
+
+        CaseTimelineEventResponseDto updatedEvent = caseTimelineEventService.updateTimelineEvent(eventId, requestDto);
+        return ResponseEntity.ok(new ApiResponse<>(updatedEvent));
+    }
+
+
 }
