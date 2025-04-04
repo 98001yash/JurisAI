@@ -71,8 +71,6 @@ public class LegalCaseService {
         legalCaseRepository.delete(legalCase);
     }
 
-
-
     public List<LegalCaseDto> searchCases(String keyword){
         return legalCaseRepository.searchByKeyword(keyword)
                 .stream()
