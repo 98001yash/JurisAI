@@ -2,9 +2,12 @@ package com.company.JurisAI.service;
 
 
 import com.company.JurisAI.dtos.DocumentInfoDto;
+import com.company.JurisAI.dtos.DocumentUploadRequestDto;
 import com.company.JurisAI.dtos.DocumentUploadResponseDto;
 import com.company.JurisAI.entities.Document;
+import com.company.JurisAI.entities.LegalCase;
 import com.company.JurisAI.repository.DocumentRepository;
+import com.company.JurisAI.repository.LegalCaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,31 +24,45 @@ public class DocumentService {
 
     private final String uploadDir = "uploads/";
     private final DocumentRepository documentRepository;
+    private final LegalCaseRepository legalCaseRepository;
 
-    public DocumentUploadResponseDto saveFile(MultipartFile file) throws IOException {
-        if(file.isEmpty()){
+    public DocumentUploadResponseDto saveFile(MultipartFile file, DocumentUploadRequestDto requestDto) throws IOException {
+        if (file.isEmpty()) {
             throw new IOException("File is empty");
         }
+
         File dir = new File(uploadDir);
-        if(!dir.exists()){
+        if (!dir.exists()) {
             dir.mkdirs();
         }
 
-        // save the file to the fileSystem
-        String filePath = uploadDir + file.getOriginalFilename();
+        String fileName = file.getOriginalFilename();
+        String filePath = uploadDir + fileName;
         File destFile = new File(filePath);
         file.transferTo(destFile);
 
-        // save metadata to the database
         Document document = new Document();
-        document.setFileName(file.getOriginalFilename());
-        document.setFilePath(file.getContentType());
+        document.setFileName(fileName);
         document.setFilePath(filePath);
         document.setFileSize(file.getSize());
 
-        document = documentRepository.save(document);
-        return new DocumentUploadResponseDto(document.getFileName(), document.getFilePath(), document.getFileSize());
+        // 🔗 Link to LegalCase if caseId is present
+        if (requestDto.getCaseId() != null) {
+            LegalCase legalCase = legalCaseRepository.findById(requestDto.getCaseId())
+                    .orElseThrow(() -> new RuntimeException("Case not found"));
+            document.setLegalCase(legalCase);
+        }
+
+        documentRepository.save(document);
+
+        return new DocumentUploadResponseDto(
+                document.getFileName(),
+                document.getFilePath(),
+                document.getFileSize()
+        );
     }
+
+
 
     public List<DocumentInfoDto> getAllDocuments() {
         return documentRepository.findAll().stream().map(doc ->

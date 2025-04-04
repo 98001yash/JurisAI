@@ -28,4 +28,9 @@ public class Document {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date uploadedAt;
+
+
+    @ManyToOne
+    @JoinColumn(name = "case_id")
+    private LegalCase legalCase;
 }
