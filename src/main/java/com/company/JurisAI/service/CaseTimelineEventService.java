@@ -29,20 +29,21 @@ public class CaseTimelineEventService {
         CaseTimelineEvent event = new CaseTimelineEvent();
         event.setEventTitle(request.getEventTitle());
         event.setDescription(request.getDescription());
-        event.setEventTime(request.getEventTime());
+        event.setEventDate(request.getEventDate());
         event.setLegalCase(legalCase);
 
         CaseTimelineEvent savedEvent = caseTimelineEventRepository.save(event);
         return modelMapper.map(savedEvent, CaseTimelineEventResponseDto.class);
     }
 
-    public List<CaseTimelineEventResponseDto> getEventByCaseId(Long caseId){
-        return caseTimelineEventRepository.findByLegalCaseId(caseId).stream()
-                .map(event->modelMapper.map(event, CaseTimelineEventResponseDto.class))
-                .collect(Collectors.toList());
+    public List<CaseTimelineEventResponseDto> getEventByCaseId(Long caseId) {
+        return caseTimelineEventRepository.findByLegalCaseIdOrderByEventDateAsc(caseId)
+                .stream()
+                .map(event -> modelMapper.map(event, CaseTimelineEventResponseDto.class))
+                .toList();
     }
 
-    public void deleteEvent(Long eventId){
+        public void deleteEvent(Long eventId){
         if(!caseTimelineEventRepository.existsById(eventId)){
             throw new RuntimeException("Event not found with ID: "+eventId);
         }

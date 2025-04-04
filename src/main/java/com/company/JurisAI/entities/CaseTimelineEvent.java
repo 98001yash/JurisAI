@@ -4,6 +4,7 @@ package com.company.JurisAI.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,7 +22,9 @@ public class CaseTimelineEvent {
     private String eventTitle;
     private String description;
 
-    private LocalDateTime eventTime;
+    @Column(name = "event_date")
+    private LocalDate eventDate;
+
 
 
     @ManyToOne
