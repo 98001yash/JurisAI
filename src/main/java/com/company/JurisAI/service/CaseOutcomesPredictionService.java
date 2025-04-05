@@ -3,7 +3,6 @@ package com.company.JurisAI.service;
 
 import com.company.JurisAI.dtos.CaseOutcomePredictionRequestDto;
 import com.company.JurisAI.dtos.CaseOutcomePredictionResponseDto;
-import com.company.JurisAI.dtos.CaseTimelineEventResponseDto;
 import com.company.JurisAI.entities.CaseOutcomesPrediction;
 import com.company.JurisAI.entities.LegalCase;
 import com.company.JurisAI.exceptions.ResourceNotFoundException;
