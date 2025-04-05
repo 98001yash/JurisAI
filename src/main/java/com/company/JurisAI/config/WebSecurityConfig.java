@@ -20,8 +20,12 @@ public class WebSecurityConfig {
 
 
     private final JwtAuthFilter jwtAuthFilter;
-    private static final String[] PUBLIC_ROUTES = {"/auth/**"};
-
+    private static final String[] PUBLIC_ROUTES = {
+            "/auth/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
 
 
     @Bean
