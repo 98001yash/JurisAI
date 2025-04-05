@@ -26,6 +26,11 @@ public interface LegalCaseRepository extends JpaRepository<LegalCase, Long> {
                                 @Param("caseStatus") String caseStatus,
                                 @Param("filedDate") LocalDate filedDate);
 
+
+
     List<LegalCase> findByJudge(String judgeName);
+
+    @Query("SELECT DISTINCT lc.judge FROM LegalCase lc WHERE lc.judge IS NOT NULL")
+    List<String> findAllJudgeNames();
 
 }
