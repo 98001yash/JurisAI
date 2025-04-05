@@ -25,4 +25,7 @@ public interface LegalCaseRepository extends JpaRepository<LegalCase, Long> {
     List<LegalCase> filterCases(@Param("courtName") String courtName,
                                 @Param("caseStatus") String caseStatus,
                                 @Param("filedDate") LocalDate filedDate);
+
+    List<LegalCase> findByJudge(String judgeName);
+
 }
